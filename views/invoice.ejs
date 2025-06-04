@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Management</title>
+    <link rel="stylesheet" href="/main.css"> <!-- Add your CSS path -->
+    <link href="/node_modules/tabulator-tables/dist/css/tabulator_modern.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="main-nav">
+        <ul class="main-nav-list">
+          <li><a class="main-nav-link" href="/">Audit</a></li>
+          <li><a class="main-nav-link" href="/project">Projects</a></li>
+          <li><a class="main-nav-link" href="/budget">Budget</a></li>
+          <li><a class="main-nav-link" href="/order">Orders</a></li>
+          <li><a class="main-nav-link" href="/invoice">Invoices</a></li>
+          <button id="print-table">Print Table</button>
+        </ul>
+      </div>
+
+  
+
+ <!-- Add New Invoice Form -->
+<div class="form-container">
+    <!-- Search Orders Form -->
+    <form action="/invoice/search" method="GET" class="all-form" id="invoiceForm">
+        <h1>Search Orders</h1>
+        <div class="form-group">
+            <label for="contract_number" class="form-label">Contract Number:</label>
+            <select id="contract_number" name="contract_number" class="form-select" required>
+                <option value="">Select a contract number</option>
+                <% contractNumbers.forEach(function(number) { %>
+                    <option value="<%= number %>"><%= number %></option>
+                <% }); %>
+            </select>
+        </div>
+        <button type="submit" class="btn--form">Search</button>
+    </form>
+
+    <form action="/invoice/add" method="POST" class="all-form" id="invoiceForm">
+        <h1>Add New Invoice</h1>
+        <div class="form-group">
+            <label for="order_id" class="form-label">Unique Order ID:</label>
+            <!-- Unique Order ID dropdown -->
+<select id="order_id" name="order_id" class="form-select" onchange="fillInvoiceData()" required>
+    <option value="">Select an order ID</option>
+    <% results.forEach(order => { %>
+        <option value="<%= order.unique_order_id %>" 
+                data-contract="<%= order.contract_number %>" 
+                data-category="<%= order.category_name %>" 
+                data-orderprice="<%= order.order_price %>"
+                data-remaining="<%= order.remaining_balance %>"><%= order.unique_order_id %></option>
+    <% }); %>
+</select>
+        </div>
+        <div class="form-group">
+            <label for="contract_number_invoice" class="form-label">Contract Number:</label>
+            <input type="text" id="contract_number_invoice" name="contract_number" class="form-input" required readonly>
+        </div>
+        <div class="form-group">
+            <label for="category_name" class="form-label">Category Name:</label>
+            <input type="text" id="category_name" name="category_name" class="form-input" required readonly>
+        </div>
+        <div class="form-group">
+            <label for="invoice_number" class="form-label">Invoice Number:</label>
+            <input type="text" id="invoice_number" name="invoice_number" class="form-input" required>
+        </div>
+        <div class="form-group">
+            <label for="invoice_price" class="form-label">Invoice Price:</label>
+            <input type="number" id="invoice_price" name="invoice_price" class="form-input" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="date" class="form-label">Date:</label>
+            <input type="date" id="date" name="date" class="form-input" required>
+        </div>
+        <button type="submit" class="btn--form">Add Invoice</button>
+    </form>
+
+    <!-- Invoice Search Form -->
+<form action="/invoice/searchInvoices" method="GET" class="all-form" id="invoiceForm">
+    <h1>Search Invoices</h1>
+    <div class="form-group">
+        <label for="invoice_contract_number" class="form-label">Contract Number:</label>
+        <select id="invoice_contract_number" name="contract_number" class="form-select" required>
+            <option value="">Select a contract number</option>
+            <% contractNumbers.forEach(function(number) { %>
+                <option value="<%= number %>"><%= number %></option>
+            <% }); %>
+        </select>
+    </div>
+    <button type="submit" class="btn--form">Search Invoices</button>
+</form>
+
+ <!-- Update Invoice Form -->
+ <form action="/invoice/update" method="POST" class="all-form" id="updateInvoiceForm">
+    <h1>Update Invoice</h1>
+    
+    <div class="form-group">
+        <label for="invoice_id" class="form-label">Invoice ID:</label>
+        <select id="invoice_id" name="invoice_id" class="form-select" onchange="fillInvoiceFields()" required>
+            <option value="">Select an Invoice ID</option>
+            <% if (results && results.length > 0) { %>
+                <% results.forEach(invoice => { %>
+                    <option value="<%= invoice.invoice_id %>" 
+                            data-invoicenumber="<%= invoice.invoice_number %>" 
+                            data-date="<%= invoice.date %>"
+                            data-price="<%= invoice.invoice_price %>"
+                            data-contract="<%= invoice.contract_number %>"
+                            data-category="<%= invoice.category_name %>">
+                        <%= invoice.invoice_id %>
+                    </option>
+                <% }); %>
+            <% } %>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="contract_number_edit" class="form-label">Contract Number:</label>
+        <input type="text" id="contract_number_edit" name="contract_number_edit" class="form-input" required readonly>
+    </div>
+
+
+    <div class="form-group">
+        <label for="category_name_edit" class="form-label">Category Name:</label>
+        <input type="text" id="category_name_edit" name="category_name_edit" class="form-input" required readonly>
+    </div>
+
+    
+    <div class="form-group">
+        <label for="invoice_number_edit" class="form-label">Invoice Number:</label>
+        <input type="text" id="invoice_number_edit" name="invoice_number_edit" class="form-input" required>
+    </div>
+
+    <div class="form-group">
+        <label for="invoice_price_edit" class="form-label">Invoice Price:</label>
+        <input type="number" id="invoice_price_edit" name="invoice_price_edit" class="form-input" step="0.01" required>
+    </div>
+
+ 
+
+
+
+    <div class="form-group">
+        <label for="date_edit" class="form-label">Date:</label>
+        <input type="date" id="date_edit" name="date_edit" class="form-input" required>
+    </div>
+
+    <button type="submit" class="btn--form">Update Invoice</button>
+</form>
+</div>
+
+<script>
+    function fillInvoiceData() {
+        const orderSelect = document.getElementById('order_id');
+        const selectedOption = orderSelect.options[orderSelect.selectedIndex];
+        
+        // Set contract number, category, and max value for invoice price
+        document.getElementById('contract_number_invoice').value = selectedOption.dataset.contract;
+        document.getElementById('category_name').value = selectedOption.dataset.category;
+ 
+        // Use remaining balance as max for invoice price
+        const invoicePriceInput = document.getElementById('invoice_price');
+        const remainingBalance = selectedOption.dataset.remaining;
+        invoicePriceInput.max = remainingBalance;
+        invoicePriceInput.value = ""; // Clear current input value
+        
+        // Optionally show the max value in the input placeholder
+        invoicePriceInput.placeholder = `Max: ${remainingBalance}`;
+    }
+ </script>
+
+<script>
+    function fillInvoiceFields() {
+        const invoiceSelect = document.getElementById('invoice_id');
+        const selectedOption = invoiceSelect.options[invoiceSelect.selectedIndex];
+
+        // Populate the form fields with the selected invoice data
+        document.getElementById('invoice_number_edit').value = selectedOption.dataset.invoicenumber;
+        document.getElementById('invoice_price_edit').value = selectedOption.dataset.price;
+        document.getElementById('contract_number_edit').value = selectedOption.dataset.contract;
+        document.getElementById('category_name_edit').value = selectedOption.dataset.category;
+        document.getElementById('date_edit').value = selectedOption.dataset.date;
+    }
+</script>
+
+
+
+    <!-- Display Search Results -->
+    <% if (results && results.length > 0) { %>
+        <h2>Search Results</h2>
+        <table class="results-table" id="results-table">
+            <thead>
+                <tr>
+
+                    <th>Contract Number</th>
+                    <th>Category Name</th>
+
+                    <% if (results.length > 0 && results.some(result => result.invoice_number)) { %>
+                    <th>Invoice Number</th>
+                    <% } %>
+
+                    <% if (results.length > 0 && results.some(result => result.supplier)) { %>
+                    <th>Supplier</th>
+                    <% } %>
+
+                    <% if (results.length > 0 && results.some(result => result.order_number)) { %>
+                    <th>Order Number</th>
+                    <% } %>
+
+                    <% if (results.length > 0 && results.some(result => result.order_price)) { %>
+                    <th>Order Price</th>
+                    <% } %>
+                    <% if (results.length > 0 && results.some(result => result.invoice_price)) { %>
+                    <th>Invoice Price</th>
+                    <% } %>
+
+                    <th>Date</th>
+
+                    <% if (results.length > 0 && results.some(result => result.unique_order_id)) { %>
+                    <th>Unique Order ID</th>
+                    <% } %>
+
+                    <% if (results.length > 0 && results.some(result => result.invoice_numbers)) { %>
+                    <th>Invoice Numbers</th>
+                    <% } %>
+                    <% if (results.length > 0 && results.some(result => result.invoice_id)) { %>
+                    <th>Invoice ID</th>
+                    <% } %>
+                </tr>
+            </thead>
+            <tbody>
+                <% results.forEach(order => { %>
+                    <tr>
+                        <td><%= order.contract_number %></td>
+                        <td><%= order.category_name %></td>
+
+                        <% if (order.invoice_number) { %>
+                        <td><%= order.invoice_number %></td>
+                        <% } else if (results.some(res => res.invoice_number)) { %>
+                            <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                        <% } %>
+                        <% if (order.supplier) { %>
+                        <td><%= order.supplier %></td>
+                        <% } else if (results.some(res => res.supplier)) { %>
+                            <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                        <% } %>
+
+                        <% if (order.order_number) { %>
+                        <td><%= order.order_number %></td>
+                        <% } else if (results.some(res => res.order_number)) { %>
+                            <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                        <% } %>
+
+                        <% if (order.order_price) { %>
+                        <td><%= order.order_price %></td>
+                        <% } else if (results.some(res => res.order_price)) { %>
+                            <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                        <% } %>
+                        <% if (order.invoice_price) { %>
+                        <td><%= order.invoice_price %></td>
+                        <% } else if (results.some(res => res.invoice_price)) { %>
+                            <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                        <% } %>
+                        <td><%= order.date %></td>
+
+
+                        <% if (order.unique_order_id) { %>
+                        <td><%= order.unique_order_id %></td>
+                        <% } else if (results.some(res => res.invoice_numbers)) { %>
+                            <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                        <% } %>
+                    
+
+
+                        <% if (order.invoice_numbers) { %>
+                        <td><%= order.invoice_numbers %></td>
+                        <% } else if (results.some(res => res.invoice_numbers)) { %>
+                            <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                        <% } %>
+                        <% if (order.invoice_id) { %>
+                        <td><%= order.invoice_id %></td>
+                        <% } else if (results.some(res => res.invoice_id)) { %>
+                            <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                        <% } %>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    <% } else if (typeof results !== 'undefined') { %>
+        <p>No orders found for the specified contract number.</p>
+    <% } %>
+
+    <script src="/node_modules/tabulator-tables/dist/js/tabulator.min.js"></script>
+<script>
+     document.getElementById("print-table").addEventListener("click", function(){
+            table.print(false, true);
+        });
+
+        // Define Tabulator columns based on whether there is a category_name
+const columns = [
+
+        { title: "Contract Number", field: "contract_number", maxWidth: 200 },
+        { title: "Category Name", field: "category_name", maxWidth: 200 },
+        <% if (results.some(result => result.invoice_number)) { %>
+        { title: "Invoice Number", field: "invoice_number", maxWidth: 300 },
+        <% } %>
+        <% if (results.some(result => result.supplier)) { %>
+        { title: "Supplier", field: "supplier", maxWidth: 300 },
+        <% } %>
+
+        <% if (results.some(result => result.order_number)) { %>
+        { title: "Order Number", field: "order_number", maxWidth: 300 },
+        <% } %>
+        <% if (results.some(result => result.order_price)) { %>
+        { title: "Order Price", field: "order_price", maxWidth: 300 },
+        <% } %>
+        <% if (results.some(result => result.invoice_price)) { %>
+        { title: "Invoice Price", field: "invoice_price", maxWidth: 300 },
+        <% } %>
+        { title: "Date", field: "date", maxWidth: 300 },
+        <% if (results.some(result => result.unique_order_id)) { %>
+        { title: "Unique Order ID", field: "unique_order_id", maxWidth: 300 },
+        <% } %>
+        <% if (results.some(result => result.invoice_numbers)) { %>
+        { title: "Invoice Numbers", field: "invoice_numbers", maxWidth: 300 }
+        <% } %>
+        <% if (results.some(result => result.invocie_id)) { %>
+        { title: "Invoice ID", field: "invoice_id", maxWidth: 300 }
+        <% } %>
+    ];
+
+  // Initialize Tabulator when the page has loaded
+            var table = new Tabulator("#results-table", {
+                printAsHtml: true,
+                printRowRange: "all",
+                printHeader: "<h1>LVP Costing</h1>",
+                layout: "fitColumns",
+                columns: columns,
+                pagination: "local",
+                paginationSize: 10,
+                movableColumns: true
+            });
+
+
+    // Load data into Tabulator after rendering the table
+const resultsData = <%- JSON.stringify(results) %>; // Use results here
+table.setData(resultsData); // Set the data for the Tabulator table
+
+    document.getElementById("print-table").addEventListener("click", function(){
+        table.print(false, true);
+    });
+</script>
+</body>
+</html>

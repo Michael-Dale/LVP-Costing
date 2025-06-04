@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <link rel="stylesheet" href="/main.css"> <!-- Add your CSS path -->
+    <link href="/node_modules/tabulator-tables/dist/css/tabulator_modern.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="main-nav">
+        <ul class="main-nav-list">
+          <li><a class="main-nav-link" href="/">Audit</a></li>
+          <li><a class="main-nav-link" href="/project">Projects</a></li>
+          <li><a class="main-nav-link" href="/budget">Budget</a></li>
+          <li><a class="main-nav-link" href="/order">Orders</a></li>
+          <li><a class="main-nav-link" href="/invoice">Invoices</a></li>
+          <button id="print-table">Print Table</button>
+        </ul>
+      </div>
+
+    <div class="form-container">
+       
+    <!-- <form action="/order/add" method="POST" class="all-form" id="orderForm" > -->
+    <form class="all-form" id="orderForm" >
+        <h1>Add New Order</h1>
+        <div class="form-group">
+            <label for="contract_number" class="form-label">Contract Number:</label>
+            <select id="contract_number" name="contract_number" class="form-select" required>
+                <option value="">Select a contract number</option>
+                <% contractNumbers.forEach(function(number) { %>
+                    <option value="<%= number %>"><%= number %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="category_name" class="form-label">Category Name:</label>
+            <select id="category_name" name="category_name" class="form-select" required>
+                <option value="">Select a category</option>
+                <option value="Panel">Panel</option>
+                <option value="Components">Components</option>
+                <option value="Copper">Copper</option>
+                <option value="Small Material">Small Material</option>
+                <option value="Labour">Labour</option>
+                <option value="Drawings">Drawings</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Travel">Travel</option>
+                <option value="Misc">Misc</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="supplier" class="form-label">Supplier:</label>
+            <input type="text" id="supplier" name="supplier" class="form-input" required>
+        </div>
+        <div class="form-group">
+            <label for="order_number" class="form-label">Order Number:</label>
+            <input type="text" id="order_number" name="order_number" class="form-input" required>
+        </div>
+        <div class="form-group">
+            <label for="order_price" class="form-label">Order Price:</label>
+            <input type="number" id="order_price" name="order_price" class="form-input" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="date" class="form-label">Date:</label>
+            <input type="date" id="date" name="date" class="form-input" required>
+        </div>
+        <button type="submit" class="btn--form">Add Order</button>
+    </form>
+    
+    <form action="/order/search" method="POST" class="all-form" id="budgetForm">
+        <h1>Search Orders</h1>
+        <div class="form-group">
+            <label for="order_number" class="form-label">Order Number:</label>
+            <input type="text" id="order_number" name="order_number" class="form-input" required>
+        </div>
+        <button type="submit" class="btn--form">Search</button>
+    </form>
+
+
+    <form action="/order/edit" method="POST" class="all-form" id="budgetForm">
+        <h1>Edit Order</h1>
+        <div class="form-group">
+            <label for="order_id" class="form-label">Order ID:</label>
+            <select id="order_id" name="order_id" class="form-select">
+                <option value="">Select a order number</option>
+                <% searchResults.forEach(function(result) { %>
+                    <option value="<%= result.order_id %>"><%= result.order_id %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="order_number_edit" class="form-label">Order Number:</label>
+            <input type="text" id="order_number_edit" name="order_number_edit" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+            <label for="supplier_edit" class="form-label">Supplier:</label>
+            <input type="text" id="supplier_edit" name="supplier_edit" class="form-input" required>
+        </div>
+        <div class="form-group">
+            <label for="category_name_edit" class="form-label">Category Name:</label>
+            <select id="category_name_edit" name="category_name_edit" class="form-select" required>
+                <option value="">Select a category</option>
+                <option value="Panel">Panel</option>
+                <option value="Components">Components</option>
+                <option value="Copper">Copper</option>
+                <option value="Small Material">Small Material</option>
+                <option value="Labour">Labour</option>
+                <option value="Drawings">Drawings</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Travel">Travel</option>
+                <option value="Misc">Misc</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="order_price_edit" class="form-label">Order Price:</label>
+            <input type="number" id="order_price_edit" name="order_price_edit" class="form-input" step="0.01" required>
+        </div>
+        <button type="submit" class="btn--form">Edit Order</button>
+    </form>
+</div>
+       <!-- Display Search Results if available -->
+       <% if (searchResults && searchResults.length > 0) { %>
+        <h2>Order Search Results</h2>
+        <div id="results-table"></div> <!-- Tabulator will render here -->
+    <% } else if (typeof searchResults !== 'undefined') { %>
+        <p>No orders found for the specified order number.</p>
+    <% } %>
+
+    <script>
+        document.getElementById('orderForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+    
+            // Get the form data
+            const formData = new FormData(this);
+    
+            // Convert form data to a plain object
+            const data = Object.fromEntries(formData.entries());
+    
+            // Send POST request to the server
+            fetch('/order/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.log('Error Response:', response);
+                    return response.text().then(text => {
+                        throw new Error(text);  // Log the actual error (HTML content)
+                    });
+                }
+                return response.json(); // Return as JSON to handle the response correctly
+            })
+            .then(jsonData => {
+                if (jsonData.error) {
+                    // Show error message in a popup
+                    alert(`Error: ${jsonData.error}`);
+                } else {
+                    // Handle success (you can also show a success popup if needed)
+                    console.log('Form submitted successfully', jsonData);
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                // Show error message in a popup
+                alert(error.message);
+                console.error('Error occurred:', error.message);
+            });
+        });
+    </script>
+    
+  
+
+    <script>
+        // Populate fields based on selected category ID
+        document.getElementById("order_id").addEventListener("change", function() {
+            const selectedId = this.value;
+            const selectedResult = searchResults.find(result => result.order_id == selectedId);
+    
+            if (selectedResult) {
+                document.getElementById("order_number_edit").value = selectedResult.order_number;
+                document.getElementById("supplier_edit").value = selectedResult.supplier;
+                document.getElementById("category_name_edit").value = selectedResult.category_name;
+                document.getElementById("order_price_edit").value = selectedResult.order_price;
+            } else {
+                document.getElementById("order_number_edit").value = "";
+                document.getElementById("supplier_edit").value = "";
+                document.getElementById("category_name_edit").value = "";
+                document.getElementById("order_price_edit").value = "";
+            }
+        });
+    </script>
+    <script src="/node_modules/tabulator-tables/dist/js/tabulator.min.js"></script>
+    <script>
+        const searchResults = <%- JSON.stringify(searchResults) %>;
+
+        if (searchResults.length > 0) {
+            const columns = [
+                { title: "Order ID", field: "order_id", maxWidth: 200 },
+                { title: "Contract Number", field: "contract_number", maxWidth: 200 },
+                { title: "Category Name", field: "category_name", maxWidth: 200 },
+                { title: "Order Number", field: "order_number", maxWidth: 200 },
+                { title: "Order Price", field: "order_price", maxWidth: 200 },
+                { title: "Supplier", field: "supplier", maxWidth: 200 },
+                { title: "Date", field: "date", maxWidth: 200 }
+            ];
+
+             // Initialize Tabulator on the results-table div
+             var table = new Tabulator("#results-table", {
+                data: searchResults, // Set data from server
+                printAsHtml: true,
+                printRowRange: "all",
+                printHeader: "<h1>LVP Costing</h1>",
+                layout: "fitColumns",
+                columns: columns,
+                pagination: "local",
+                paginationSize: 10,
+                movableColumns: true,
+                initialSort: [{ column: "contract_number", dir: "desc" }]
+            });
+        }
+
+        document.getElementById("print-table").addEventListener("click", function(){
+            table.print(false, true);
+        });
+    </script>
+    
+</body>
+</html>

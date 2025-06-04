@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Results</title>
+    <link rel="stylesheet" href="/main.css"> <!-- Add your CSS path -->
+    <link href="/node_modules/tabulator-tables/dist/css/tabulator_modern.min.css" rel="stylesheet">
+
+</head>
+<style>
+    /* CSS code to style Tabulator table headers */
+    .tabulator .tabulator-header {
+        color: Black; /* Set text color to black */
+    }
+</style>
+<body>
+
+    <div class="main-nav">
+        <ul class="main-nav-list">
+          <li><a class="main-nav-link" href="/">Audit</a></li>
+          <li><a class="main-nav-link" href="/project">Projects</a></li>
+          <li><a class="main-nav-link" href="/budget">Budget</a></li>
+          <li><a class="main-nav-link" href="/order">Orders</a></li>
+          <li><a class="main-nav-link" href="/invoice">Invoices</a></li>
+          <button id="print-table">Print Table</button>
+        </ul>
+    </div>
+
+    <h1>Audit Results</h1>
+    <div class="form-container">
+    <form action="/filter/date" method="POST" class="all-form" id="filterForm">
+        <h2>Search By Date</h2>
+        <div class="form-group">
+            <label for="startDate" class="form-label">Start Date:</label>
+            <input type="date" id="startDate" name="startDate" class="form-input" required>
+        </div>
+    
+        <div class="form-group">
+            <label for="endDate" class="form-label">End Date:</label>
+            <input type="date" id="endDate" name="endDate" class="form-input" required>
+        </div>
+    
+        <button type="submit" class="btn--form">Filter</button>
+    </form>
+
+    <form action="/filter/contractNumber" method="POST" class="all-form" id="filterForm">
+        <h2>Search By Contract</h2>
+        <div class="form-group">
+            <label for="contractNumber" class="form-label">Contract Number:</label>
+            <input type="text" id="contractNumber" name="contractNumber" class="form-input">
+        </div>
+    
+        <button type="submit" class="btn--form">Filter</button>
+    </form>
+
+    <form action="/filter/categoryName" method="POST" class="all-form" id="filterForm">
+        <h2>Search By Category</h2>
+        <div class="form-group">
+            <label for="categoryName" class="form-label">Category Name:</label>
+            <select id="categoryName" name="categoryName" class="form-select" required>
+                <option value="">Select a category</option>
+                <option value="Panel">Panel</option>
+                <option value="Components">Components</option>
+                <option value="Copper">Copper</option>
+                <option value="Small Material">Small Material</option>
+                <option value="Labour">Labour</option>
+                <option value="Drawings">Drawings</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Travel">Travel</option>
+                <option value="Misc">Misc</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="startDate" class="form-label">Start Date:</label>
+            <input type="date" id="startDate" name="startDate" class="form-input" required>
+        </div>
+    
+        <div class="form-group">
+            <label for="endDate" class="form-label">End Date:</label>
+            <input type="date" id="endDate" name="endDate" class="form-input" required>
+        </div>
+    
+        <button type="submit" class="btn--form">Filter</button>
+    </form>
+    </div>
+    <table id="auditTable">
+        <thead>
+            <tr>
+                <th>Contract Number</th>
+                <% if (results.length > 0 && results.some(result => result.contract_description)) { %>
+                <th>Contract Description</th>
+                <% } %>
+                <% if (results.length > 0 && results.some(result => result.category_name)) { %>
+                    <th>Category Name</th>
+                <% } %>
+                <th>Total Order Amount</th>
+                <% if (results.length > 0 && results.some(result => result.order_date)) { %>
+                <th>Order Date</th>
+                <% } %>
+                <th>Total Invoice Amount</th>
+                <% if (results.length > 0 && results.some(result => result.invoice_date)) { %>
+                <th>Invoice Date</th>
+                <% } %>
+                <th>Committed Cost</th>
+                <th>Estimated Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% results.forEach(result => { %>
+                <tr>
+                    <td><%= result.contract_number %></td>
+                    <% if (result.contract_description) { %>
+                    <td><%= result.contract_description %></td>
+                    <% } else if (results.some(res => res.contract_description)) { %>
+                        <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                    <% } %>
+                    <% if (result.category_name) { %>
+                        <td><%= result.category_name %></td>
+                    <% } else if (results.some(res => res.category_name)) { %>
+                        <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                    <% } %>
+                    <td><%= result.total_order_amount %></td>
+                    <% if (result.order_date) { %>
+                        <td><%= result.order_date %></td>
+                    <% } else if (results.some(res => res.order_date)) { %>
+                        <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                    <% } %>
+                    <td><%= result.total_invoice_amount %></td>
+                    <% if (result.invoice_date) { %>
+                        <td><%= result.invoice_date %></td>
+                    <% } else if (results.some(res => res.invoice_date)) { %>
+                        <td></td> <!-- Placeholder for the column if there's no category name but other results have -->
+                    <% } %>
+                    <td><%= result.committed_cost %></td>
+                    <td><%= result.total_estimated_cost %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+
+    <script src="/node_modules/tabulator-tables/dist/js/tabulator.min.js"></script>
+    <script>
+        document.getElementById("print-table").addEventListener("click", function(){
+            table.print(false, true);
+        });
+// Define Tabulator columns based on whether there is a category_name
+const columns = [
+        { title: "Contract Number", field: "contract_number", maxWidth: 200 },
+        <% if (results.some(result => result.contract_description)) { %>
+            { title: "Contract Description", field: "contract_description", maxWidth: 200 },
+        <% } %>
+        <% if (results.some(result => result.category_name)) { %>
+            { title: "Category Name", field: "category_name", maxWidth: 200 },
+        <% } %>
+        { title: "Total Order Amount", field: "total_order_amount", maxWidth: 300 },
+        <% if (results.some(result => result.order_date)) { %>
+        { title: "Order Date", field: "order_date", maxWidth: 300 },
+        <% } %>
+        { title: "Total Invoice Amount", field: "total_invoice_amount", maxWidth: 300 },
+        <% if (results.some(result => result.invoice_date)) { %>
+        { title: "Invoice Date", field: "invoice_date", maxWidth: 300 },
+        <% } %>
+        { title: "Committed Cost", field: "committed_cost", maxWidth: 300 },
+        { title: "Estimated Cost", field: "total_estimated_cost", maxWidth: 300 }
+    ];
+
+    // Initialize Tabulator on the auditTable
+    var table = new Tabulator("#auditTable", {
+        printAsHtml: true,
+                printRowRange: "all",
+                printHeader: "<h1>LVP Costing</h1>",
+                layout: "fitColumns",
+                columns: columns,
+                // data: <%= JSON.stringify(results) %>, // Dynamically passed data
+                pagination: "local",
+                paginationSize: 10,
+                movableColumns: true,
+        initialSort: [
+            { column: "contract_number", dir: "desc" }
+        ],
+    });
+
+    // Load data into Tabulator after rendering the table
+    const resultsData = <%- JSON.stringify(results) %>; // Make sure `results` is correctly passed to JS
+    table.setData(resultsData); // Set the data for the Tabulator table
+
+    document.getElementById("print-table").addEventListener("click", function(){
+        table.print(false, true);
+    });
+    </script>
+</body>
+</html>

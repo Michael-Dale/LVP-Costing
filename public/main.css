@@ -1,0 +1,335 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    max-width: 120rem;
+    padding: 0 3.2rem;
+    margin: 15px auto;
+}
+
+body {
+    font-family: "Open Sans", sans-serif;
+    line-height: 1.5; /* Increased line-height for better readability */
+    font-weight: 400;
+    color: #000;
+    background-color: #f9f9f9; /* Light background for less strain on eyes */
+}
+
+.main-nav {
+    margin-bottom: 5px;
+    padding: 15px 5px;
+    background-color: #ff7e27;
+}
+
+.main-nav-list {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 3.2rem;
+}
+
+.main-nav-link:link,
+.main-nav-link:visited {
+    display: inline-block;
+    text-decoration: none;
+    color: #000;
+    font-weight: 500;
+    font-size: 1.3rem;
+    transition: all 0.3s;
+}
+
+.main-nav-link:hover,
+.main-nav-link:active {
+    color: white;
+}
+
+.main-nav-link.nav-cta:link,
+.main-nav-link.nav-cta:visited {
+    padding: 1.2rem 2.4rem;
+    border-radius: 9px;
+    color: #fff;
+    background-color: #ff7e27;
+}
+
+.main-nav-link.nav-cta:hover,
+.main-nav-link.nav-cta:active {
+    background-color: #ff7e27;
+}
+
+.heading-primary,
+h1,
+.heading-tertiary {
+    font-weight: 700;
+    color: #000;
+    letter-spacing: -0.5px;
+}
+
+h1 {
+    font-size: 3rem;
+    line-height: 1.2;
+    text-align: center;
+}
+
+h2 {
+    font-size: 2rem;
+    color: #000;
+    font-weight: 700;
+}
+
+.button,
+.btn:link,
+.btn:visited {
+    display: inline-block;
+    background-color: #ff7e27;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.7rem 2rem;
+    border-radius: 9px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.cta {
+    display: grid;
+    grid-template-columns: 2fr;
+    background-color: #ff7e27;
+    box-shadow: 0 2.4rem 4.8rem rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.cta-text-box {
+    padding: 13px 50px;
+    color: black;
+}
+
+.cta .heading-secondary {
+    color: inherit;
+    margin-bottom: 3.2rem;
+}
+
+.cta-text {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+}
+
+.cta-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 3.2rem;
+    row-gap: 1.5rem;
+}
+
+.cta-form label {
+    display: block;
+    font-size: 1.2rem; /* Increased font size */
+    font-weight: 550;
+    margin-bottom: 1.2rem;
+}
+
+.labelStyle {
+    font-size: 1.2rem; /* Increased font size */
+    font-weight: 550;
+    margin-bottom: 1.2rem;
+}
+
+.cta-form input,
+.cta-form select {
+    width: auto;
+    padding: 1rem;
+    font-size: 1.2rem; /* Increased font size */
+    font-family: inherit;
+    color: inherit;
+    border: none;
+    background-color: #fdf2e9;
+    border-radius: 9px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dropdownStyle {
+    width: auto;
+    padding: 1rem; /* Increased padding for larger touch area */
+    font-size: 1.2rem; /* Increased font size */
+    font-family: inherit;
+    color: inherit;
+    border: none;
+    border-radius: 9px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.cta-form input::placeholder {
+    color: #aaa;
+}
+
+.cta *:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.8rem rgba(253, 242, 233, 0.5);
+}
+
+.cta-form .control,
+.cta-form .control-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cta-form label,
+.deleteLabel {
+    margin-bottom: 0;
+    flex-shrink: 0;
+    width: 150px;
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+    grid-column: 2;
+}
+
+.cta-form input,
+.cta-form select {
+    flex-grow: 1;
+    width: auto;
+}
+
+.btn--form {
+    background-color: black;
+    color: #fdf2e9;
+    align-self: end;
+    width: 25%;
+    padding: 1rem; /* Increased padding */
+    font-size: 1.2rem; /* Increased font size */
+}
+
+.btn--form:hover {
+    background-color: #fff;
+    color: #555;
+}
+
+button:hover {
+    background-color: #555;
+    color: #fff;
+}
+
+.height {
+    height: 300px;
+}
+
+.spanning-div {
+    grid-column: 1 / -1; /* This makes it span from the first to the last column */
+}
+
+.top-bot-padding {
+    padding-top: 20px;
+    padding: 20px;
+}
+
+.tabulator-print-header,
+.tabulator-print-footer {
+    text-align: center;
+}
+
+#print-table {
+    background: none;
+    border: none;
+    font-weight: 500;
+    font-size: 1.3rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .cta-form {
+        grid-template-columns: 1fr; /* Stack the form inputs on smaller screens */
+    }
+
+    .btn--form {
+        width: 100%; /* Full-width buttons on mobile */
+    }
+}
+
+/* General Styles for Form */
+
+/* New container to hold both forms side by side */
+.form-container {
+    display: flex;
+    justify-content: center; /* Center-align the two forms horizontally */
+    gap: 2rem; /* Add some space between the two forms */
+    margin: 20px auto; /* Center the container horizontally */
+}
+
+.all-form {
+    display: flex;
+    flex-direction: column; /* Stack form elements vertically */
+    justify-content: center;
+    align-items: center;
+    background-color: #a89f9f; /* White background for the form */
+    padding: 2rem; /* Padding around the form */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    width: 400px; /* Fixed width for the form */
+    margin: 20px auto; /* Center the form horizontally */
+}
+
+/* Styling for Form Groups */
+.form-group {
+    margin-bottom: 1.5rem; /* Space between form groups */
+    width: 100%; /* Full width of the form */
+}
+
+/* Styling for Labels */
+.form-label {
+    font-size: 1.1rem; /* Label font size */
+    font-weight: 600; /* Bold labels */
+    margin-bottom: 0.5rem; /* Space between label and input */
+    color: #333; /* Darker color for labels */
+}
+
+/* Styling for Select and Input Fields */
+.form-select,
+.form-input {
+    width: 100%; /* Full width of the form */
+    padding: 0.8rem; /* Padding for inputs */
+    font-size: 1rem; /* Font size for inputs */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Subtle shadow for inputs */
+    transition: border-color 0.3s; /* Smooth border color transition */
+}
+
+/* Change border color on focus */
+.form-input:focus,
+.form-select:focus {
+    border-color: #ff7e27; /* Change border color on focus */
+    outline: none; /* Remove default outline */
+}
+
+/* Styling for Button */
+.btn--form {
+    background-color: #ff7e27; /* Button color */
+    color: white; /* Button text color */
+    padding: 0.8rem; /* Padding for button */
+    font-size: 1.1rem; /* Font size for button */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth background color transition */
+    width: 100%; /* Full width of the button */
+}
+
+.btn--form:hover {
+    background-color: #ff5f0b; /* Darker shade on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .invoice-form {
+        width: 90%; /* Allow form to take up more width on small screens */
+    }
+}

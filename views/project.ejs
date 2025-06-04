@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management</title>
+    <link rel="stylesheet" href="/main.css"> <!-- Add your CSS path -->
+    <script>
+        let existingProjects = [];
+
+        // Fetch existing project numbers when the page loads
+        async function fetchExistingProjects() {
+            try {
+                const response = await fetch('/project/get-all');
+                const data = await response.json();
+                existingProjects = data.map(project => project.contract_number.toLowerCase());
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            }
+        }
+
+        // Validate the contract number
+        function validateContractNumber() {
+            const inputField = document.getElementById('contract_number');
+            const errorMessage = document.getElementById('error-message');
+
+            const input = inputField.value.trim();
+            const firstChar = input.charAt(0).toUpperCase();
+
+            // Check if it starts with 'S' or 'C'
+            if (firstChar !== 'S' && firstChar !== 'C') {
+                errorMessage.textContent = 'Contract number must start with "S" or "C".';
+                return false;
+            }
+
+            // Check if it's a duplicate
+            if (existingProjects.includes(input.toLowerCase())) {
+                errorMessage.textContent = 'Contract number already exists. Please use a unique value.';
+                return false;
+            }
+
+            errorMessage.textContent = ''; // Clear error message
+            return true;
+        }
+
+        // Add event listener to validate on form submission
+        window.onload = function() {
+            fetchExistingProjects();
+            const form = document.getElementById('projectForm');
+            form.addEventListener('submit', function(event) {
+                if (!validateContractNumber()) {
+                    event.preventDefault(); // Prevent form submission if invalid
+                }
+            });
+        };
+    </script>
+</head>
+<body>
+    <div class="main-nav">
+        <ul class="main-nav-list">
+          <li><a class="main-nav-link" href="/">Audit</a></li>
+          <li><a class="main-nav-link" href="/project">Projects</a></li>
+          <li><a class="main-nav-link" href="/budget">Budget</a></li>
+          <li><a class="main-nav-link" href="/order">Orders</a></li>
+          <li><a class="main-nav-link" href="/invoice">Invoices</a></li>
+        </ul>
+    </div>
+
+    <h1>Add New Project</h1>
+
+    <% if (message) { %>
+        <p><%= message %></p>
+    <% } %>
+
+    <form action="/project/add" method="POST" class="all-form" id="projectForm">
+        <div class="form-group">
+            <label for="contract_number" class="form-label">Contract Number:</label>
+            <input type="text" id="contract_number" name="contract_number" class="form-input" required>
+            <p id="error-message" style="color: red;"></p> <!-- Error message -->
+        </div>
+        <div class="form-group">
+            <label for="contract_description" class="form-label">Contract Description:</label>
+            <input type="text" id="contract_description" name="contract_description" class="form-input" required>
+        </div>
+        <button type="submit" class="btn--form">Add Project</button>
+    </form>
+</body>
+</html>
